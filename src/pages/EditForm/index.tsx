@@ -37,9 +37,7 @@ const EditForm = () => {
     try {
       const response = await axios.get(`https://mock-api.arikmpt.com/api/category/${id}`);
       setCategory(response.data);
-    } catch (error) {
-      alert(error);
-    }
+    } 
   }, [id]);
 
   useEffect(() => {
@@ -55,9 +53,7 @@ const EditForm = () => {
         text: 'Category has been updated successfully.',
       });
       navigate('/table');
-    } catch (error) {
-      alert(error);
-    }
+
   };
 
   const formik = useFormik({
