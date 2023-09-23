@@ -20,7 +20,7 @@ function App() {
         <Route path='/' element={<LoginForm/>} />
         <Route path='/register' element={<RegisterForm/>} />
         <Route path='/table' element={<TableForm/>} />
-        <Route path="/edit-item" element={<EditForm />} />
+        <Route path="/edit-item/:id" element={<EditForm />} />
         <Route path="/add-item" element={<AddForm />} />
       </Routes>
       </Router>

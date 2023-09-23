@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Table, Space, Card, Form } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import {useFetchList} from "../../hooks";
 import Swal from "sweetalert2";
 import { useNavigate } from 'react-router-dom';
 
@@ -27,16 +26,26 @@ interface DataType {
 const TableForm: React.FC = () => {
 
   const navigate = useNavigate();
-  const apiUrl = "https://mock-api.arikmpt.com/api/category";
-  const validate = localStorage.getItem('token');
-  const { isLoading, data } = useFetchList<DataType>({
-    url: apiUrl,
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${validate}`,
-  },
-  });
+  const [data, setData] = useState<DataType[]>([])
 
+const fetchData = async () => {
+  const validate = localStorage.getItem('token');
+  const apiUrl = 'https://mock-api.arikmpt.com/api/category';
+  const fetching = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${validate}`
+                }
+            }); 
+if (fetching.ok) {
+  const data = await fetching.json()
+  setData(data.data)
+}
+} 
+
+useEffect(() => {
+    fetchData();
+  }, []);
 
 const columns: ColumnsType<DataType> = [
   {
@@ -67,11 +76,11 @@ const columns: ColumnsType<DataType> = [
   {
     title: "Action",
     key: "action",
-    render: (_, is_delete ) => (
+    render: (_, dataId ) => (
       <Space>
-        <Button onClick={() => navigate('/edit-item')}>EDIT</Button>
+        <Button onClick={() => navigate(`/edit-item/${dataId.id}`)}>EDIT</Button>
         <Button onClick={() => 
-          deleteItem(is_delete.id)} type="primary" >DELETE</Button>
+          deleteItem(dataId.id)} type="primary" >DELETE</Button>
       </Space>
     ),
   },
@@ -92,7 +101,7 @@ if (fetching.ok) {
           title: 'Successfully deleted',
           text: 'Successfully deleted',
         });
-        navigate(0) 
+        fetchData()
       } 
 } 
 
@@ -111,10 +120,7 @@ if (fetching.ok) {
           Logout
         </Button>
       </Form.Item>
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : 
-      (
+      
         <Table
           columns={columns}
           dataSource={data}
@@ -124,7 +130,7 @@ if (fetching.ok) {
           }}
           style={{ width: "800px"}}
         />
-      )}
+      
     </Card>
   );
 };
