@@ -1,108 +1,104 @@
-import  { useCallback, useEffect, useState } from 'react';
-import { Form, Button, Card, Space, Input, Select } from 'antd';
+import React from 'react';
+import { Button, Form, Input, Select, Card, Space } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
-import axios from 'axios';
 import Swal from 'sweetalert2';
+import axios from 'axios'
 
 const { Option } = Select;
 
-interface Category {
-  name: string;
-  status: string;
+interface EditPage {
+  id: string,
+  name: string,
+  is_active: boolean
 }
 
-interface FormProps {
-  name: string;
-  status: string;
-}
+const EditForm: React.FC = () => {
 
-const initialValues: FormProps = {
-  name: '',
-  status: '',
-};
-
-const validationSchema = yup.object().shape({
-  name: yup.string().required('Name is required'),
-  status: yup.string().required('Status is required'),
-});
-
-const EditForm = () => {
+const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { id } = useParams();
-  const [category, setCategory] = useState<Category | null>(null);
+  const validate = localStorage.getItem('token');
 
-  const getCategory = useCallback(async () => {
-    try {
-      const response = await axios.get(`https://mock-api.arikmpt.com/api/category/${id}`);
-      setCategory(response.data);
-    } 
-  }, [id]);
+  const onFinish = (values: EditPage) => {
+    console.log(values);
 
-  useEffect(() => {
-    getCategory();
-  }, [getCategory]);
+    axios.put(`https://mock-api.arikmpt.com/api/category/update`, {
+      id: id,
+          name: values?.name,
+          is_active: values?.is_active,
 
-  const onSubmit = async (values: FormProps) => {
-    try {
-      await axios.put(`https://mock-api.arikmpt.com/api/category/${id}`, values);
-      Swal.fire({
-        icon: 'success',
-        title: 'Category updated successfully',
-        text: 'Category has been updated successfully.',
+        }, { headers: { Authorization: `Bearer ${validate}` } })
+      .then((response) => {
+        console.log('Update successful', response.data);
+        navigate('/table');
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        })
+        
+        Toast.fire({
+          icon: 'success',
+          title: 'Data successfully submited!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+    }
+});
+      }).catch((error) => {
+        console.log(error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: 'An error occurred during update. Please try again.',
+        });
       });
-      navigate('/table');
-
   };
 
-  const formik = useFormik({
-    initialValues: category || initialValues,
-    validationSchema: validationSchema,
-    onSubmit: onSubmit,
-  });
-
   return (
-    <Card title="Edit Category">
-      <Form name="control-ref" onFinish={formik.handleSubmit} style={{ width: 200 }}>
-        <Form.Item
-          name="name"
-          validateStatus={formik.touched.name && formik.errors.name ? 'error' : ''}
-          help={formik.touched.name && formik.errors.name}
-        >
+    <Card title="Edit Category" style={{
+      maxWidth: "400px",
+      width: "100%",
+      padding: "20px",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center"}}>
+      <Form
+        name="edit-item-form"
+        onFinish={onFinish}
+        style={{ maxWidth: 600 }}
+      >
+      <Form.Item name="name" rules={[{ required: true }]}>
           <Input
-            name="name"
-            placeholder="Name"
-            value={formik.values.name}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-          />
+            placeholder='Name'
+            allowClear />
         </Form.Item>
-        <Form.Item name="status">
+        
+        <Form.Item name="status" rules={[{ required: true }]}>
           <Select
-            placeholder="Select Option"
+            placeholder="Select a status option"
             allowClear
-            value={formik.values.status}
-            onChange={(value) => formik.setFieldValue('status', value)}
-            onBlur={formik.handleBlur}
           >
-            <Option value="active">Active</Option>
-            <Option value="deactive">Deactive</Option>
+            <Option value="true">Active</Option>
+            <Option value="false">Deactive</Option>
           </Select>
         </Form.Item>
+
         <Form.Item>
           <Space>
-            <Button type="primary" htmlType="submit">
-              SUBMIT
-            </Button>
-            <Button href="/table" htmlType="button">
-              BACK
-            </Button>
+            <Button type="primary" htmlType="submit">Submit</Button>
+            <Button htmlType="button" onClick={() => { navigate('/table') }}>Back</Button>
           </Space>
         </Form.Item>
       </Form>
     </Card>
   );
 };
+
 
 export default EditForm;
