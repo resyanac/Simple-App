@@ -113,7 +113,7 @@ const LoginForm = () => {
             LOGIN
           </Button>
           <Typography style={{ marginBottom: "5px" }}>Or</Typography>
-          <a type="primary" className="register-link" href="/register">
+          <a type="primary" className="register-link" onClick={() => navigate('/register')}>
             Register here{" "}
           </a>
         </Form.Item>

@@ -69,7 +69,7 @@ const columns: ColumnsType<DataType> = [
     key: "action",
     render: (_, is_delete ) => (
       <Space>
-        <Button href="/edit-item">EDIT</Button>
+        <Button onClick={() => navigate('/edit-item')}>EDIT</Button>
         <Button onClick={() => 
           deleteItem(is_delete.id)} type="primary" >DELETE</Button>
       </Space>
@@ -102,12 +102,12 @@ if (fetching.ok) {
         <Button
           type="primary"
           className="login-link"
-          href="add-item"
+          onClick={() => navigate('/add-item')}
           style={{ marginRight: "550px" }}
         >
           Add New Category
         </Button>
-        <Button type="primary" className="login-link" href="/">
+        <Button type="primary" className="login-link" onClick={() => navigate('/')}>
           Logout
         </Button>
       </Form.Item>

@@ -83,7 +83,7 @@ const AddForm = () => {
             <Button type="primary" htmlType="submit">
               SUBMIT
             </Button>
-            <Button href="/table" htmlType="button">BACK</Button>
+            <Button onClick={() => navigate('/table')} htmlType="button">BACK</Button>
           </Space>
         </Form.Item>
       </Form>
